@@ -1,0 +1,30 @@
+.JKButton {
+    border-radius: 15px;
+    padding: 10px 50px;
+    background: #000;
+    border: 0px;
+    font-weight: 500;
+    font-size: 1.1em;
+    width: 100%;
+  }
+  .JKButtonGrey {
+    border-radius: 15px;
+    padding: 10px 50px;
+    background: #f8f8f8;
+    border: 0px;
+    font-weight: 500;
+    font-size: 1.1em;
+    width: 100%;
+    color: #000;
+  }
+  .JKButton:hover,
+  .JKButton:focus,
+  .JKButton:active {
+    background-color:#000 !important;
+  }
+  .JKButtonGrey:hover,
+  .JKButtonGrey:focus,
+  .JKButtonGrey:active {
+    background-color: #f8f8f8 !important;
+    color: #000;
+  }
