@@ -1,6 +1,6 @@
 # devclub-recruitment-asignment
 
-I've attempted Part I and Part II. The project was done using MERN Stack. I was contributing for Tryst'21 Backend and started this a bit late and thus was not able to complete Asignment. But I did manage to complete 90% of it with the part for accepting/rejecting requests by Librarian being left.
+I've attempted Part I and Part II. The project was done using MERN Stack. I was contributing for Tryst'21 Backend and started this a bit late and thus was not able to complete Asignment. But I did manage to complete 90% of it with the part for accepting/rejecting requests by Librarian being left. Although I had to attempt only one of the Part I and Part II, I attempted both Part I and Part II(2 and bonus).
 
 
 
