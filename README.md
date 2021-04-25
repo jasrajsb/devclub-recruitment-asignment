@@ -9,7 +9,7 @@ Clone the Repository.
 
 run command `npm i` in ./Part 1
 
-create a `.env' file in Part 1 with variables which I submitted in Form
+create a `.env' file in Part 1 with variables which I submitted in Form. I didn't upload them directly as someone may mess up with Initial data in database
 
 
 Run command `npm start `
