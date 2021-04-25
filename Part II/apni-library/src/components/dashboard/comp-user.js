@@ -29,13 +29,27 @@ function List2(props) {
     return <div>
         {
             props.arr.map((child, index) => {
-                return <div key={index} className="bg-white py-3 px-4 ycenter" style={{ height: "100px", borderRadius: '15px', marginTop: '20px', justifyContent: 'space-between' }}>
-                    <img src={avtaar} alt="" style={{ height: '35px' }} />
-                    <div className="fs-4 mx-3 text-capitalize fw-500 d-flex ycenter ">{child.name} <div style={{ paddingLeft: "10px", fontSize: 'smaller', opacity: '.7', fontWeight: 500 }}>({child.user_type})</div></div>
+                console.log(32, child);
+                return <div className="d-flex flex-column bg-white py-3 px-4" style={{ borderRadius: '15px', marginTop: '20px', }}><div key={index} className=" ycenter" style={{ height: "100px", justifyContent: 'space-between' }}>
+                    {/* <img src={avtaar} alt="" style={{ height: '35px' }} /> */}
+                    <div className="fs-5 mx-3 text-capitalize fw-600 d-flex ycenter ">{child.title} <div style={{ paddingLeft: "10px", fontSize: 'smaller', opacity: '.7', fontWeight: 500 }}>({child.author || 'Unknown'})</div></div>
                     <div className="d-flex">
-                        <div onClick={() => { child.change() }} className={"user_but mx-2 py-2 px-4 text-white"} style={{ borderRadius: "10px", background: '#000', cursor: 'pointer' }}>Change Type</div>
+                        {<div style={{display:'none'}} id={'req'+child.book_id}>Requested</div>}
+
+                    </div>
+                    <div className="d-flex">
+                        <div onClick={(e) => { e.target.style.display = 'none'; child.request();document.getElementById('req'+child.book_id).style.display='flex' }} className={"user_but mx-2 py-2 px-4 text-white" + ((child.requested || child.requesting) ? " d-none" : "")} style={{ borderRadius: "10px", background: '#000', cursor: 'pointer' }}>Request for 7 Days</div>
                     </div>
 
+                </div>
+                    <div className="m-2">
+                        {child.author && <div className="div fw-600">Author: <span className="fw-500">{child.author}</span></div>}
+                        {child.publisher && <div className="div fw-600">Publisher: <span className="fw-500">{child.publisher}</span></div>}
+                        {child.genre && <div className="div fw-600">Genre: <span className="fw-500">{child.genre}</span></div>}
+                        {child.ISBN && <div className="div fw-600">ISBN: <span className="fw-500">{child.ISBN}</span></div>}
+                        {child.summary && <div className="div fw-600">Summary: <span className="fw-500">{child.summary}</span></div>}
+                        {/* {child.genre && <div className="div fw-600">Genre: <span className="fw-500">{child.genre}</span></div>} */}
+                    </div>
                 </div>
             })
         }
@@ -47,20 +61,46 @@ function withProps(Component, props) {
     }
 }
 class Search extends React.Component {
-    search = (c)=>{
+    search = (c) => {
         var self=this;
+        c.detail.forEach((b, i) => {
+            b.requested = false;
+            b.requesting = false;
+            b.request = () => {
+                b.requesting = true;
+                self.setState({});
+                window.server.send({
+                    request_name: "request_book",
+                    book_id: b.book_id,
+                    credentials: window.getUser().token.token
+                }).then((msg) => {
+                    b.requesting = false;
+                    b.requested = true;
+                    b.reqid = msg.id
+                    self.setState({
+
+                    });
+                });
+            }
+        });
+        var self = this;
         console.log(c)
         self.setState({
-            component:c
+            component:
+                <div className="bg-light px-4 py-3 m-4" style={{ borderRadius: '15px' }}>
+                    <div className="fs-3 fw-500" >Search Results</div>
+                    <List2 arr={c.detail} />
+                </div>
+
         })
     }
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {};
-        var self=this;
+        var self = this;
         console.log("abcdefgh")
         console.log(61, "adding")
-        document.addEventListener("received_books_searched",this.search);
+        document.addEventListener("received_books_searched", this.search);
 
     }
     componentWillUnmount() {
@@ -240,12 +280,12 @@ class Dashboard extends React.Component {
                                             q: document.getElementById('search').value
                                         }).then((msg) => {
                                             if (msg.success) {
-                                                var event_msg = { detail:  <List2 arr={msg.books} />}
+                                                var event_msg = { detail: msg.books }
                                                 console.log("script", 22, event_msg)
                                                 var event = new CustomEvent("received_books_searched", event_msg);
                                                 document.dispatchEvent(event);
                                                 console.log("dispatched");
-                                                
+
                                             } else {
                                                 self.props.history.push("/dashboard/user")
                                             }
@@ -326,8 +366,9 @@ class Dashboard extends React.Component {
 
                                 </div>
                             </div>
-                            <Route path="/dashboard/user/search" component={Search} />
                         </Route>
+                        <Route path="/dashboard/user/search" component={Search} />
+
                         <Route exact path="/dashboard/admin/users" component={UserManagement} />
 
                     </Switch>

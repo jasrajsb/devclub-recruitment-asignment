@@ -558,6 +558,41 @@ router.post('/', (req, res) => {
             }
         }
     }
+    if (req.body.request_name === "request_book") {
+        if (req.body.credentials) {
+            var user_id = auth.verify(req.body.credentials);
+            console.log(user_id);
+            if (user_id) {
+                database.get_user_obj(user_id).then((user) => {
+                    var state = {};
+                    console.log(user, user.user_type !== "User");
+                    if (user.user_type !== "User") {
+                        res.send({
+                            success: false,
+                            msg: 'Forbidden'
+                        })
+                    } else {
+                        database.request_book(user.user_id, req.body.book_id).then((reqid) => {
+                            res.send({
+                                success: true,
+                                books: reqid
+                            });
+                        });
+                    }
+
+                }).catch((msg) => {
+                    console.log(159, msg);
+                    if (msg !== {}) {
+                        res.send({
+                            success: false,
+                            msg: msg
+                        })
+                    }
+
+                });
+            }
+        }
+    }
 });
 
 module.exports = router;

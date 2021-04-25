@@ -4,6 +4,7 @@ const Book = require("../models/book.js");
 const Request = require("../models/request.js");
 const auth = require("./auth")
 var md5 = require('md5');
+const request = require("request");
 
 var database = {};
 
@@ -63,6 +64,48 @@ database.add_book = (book) => {
                 Book(book).save(function (err, user) {
                     if (err) throw err;
                     resolve(user);
+                });
+            });
+        });
+    });
+}
+
+database.request_book = (uid, bid) => {
+    return new Promise(function (resolve, reject) {
+        Request.findOne({ status: "counter" }).then((counter) => {
+            if (!counter) {
+                counter = {
+                    status: 'counter',
+                    request_id: '100001',
+                    user_id: '',
+                    book_id: '',
+                    days: ''
+                }
+            }
+            var req = {
+                status: 'pending',
+                request_id: '100001',
+                user_id: uid,
+                book_id: bid,
+                days: '7'
+            }
+            req.request_id = counter.request_id;
+            counter.request_id = ((counter.request_id - 0) + 1) + '';
+
+            Request(counter).save(function (err) {
+                if (err) throw err;
+                Request(req).save(function (err, user) {
+                    if (err) throw err;
+                    Book.findOne({book_id:bid}).then((b)=>{
+                        b.status='requested';
+                        b.availability = uid;
+                        Book(b).save(function(err){
+                            if(err) throw err;
+                            resolve(user.request_id);
+                        })
+                        
+                    });
+                    
                 });
             });
         });
@@ -159,7 +202,7 @@ database.get_books = () => {
         Book.find({ status: "in_library" }).then((il) => {
             Book.find({ status: "with_user" }).then((wu) => {
                 Book.find({ status: "lost" }).then((l) => {
-                    resolve(users.concat(il,wu,l))
+                    resolve(users.concat(il, wu, l))
                 });
             });
         });
@@ -170,10 +213,10 @@ database.search_books = (q) => {
     return new Promise((resolve, reject) => {
         var users = [];
         console.log(172, q)
-        Book.find({status:'in_library'}).then((il) => {
-            var lid=[];
-            il.forEach((b)=>{
-                if(JSON.stringify(b).toLowerCase().includes(q.toLowerCase())){
+        Book.find({ status: 'in_library' }).then((il) => {
+            var lid = [];
+            il.forEach((b) => {
+                if ((b.title).toLowerCase().includes(q.toLowerCase()) || (b.author).toLowerCase().includes(q.toLowerCase())) {
                     lid.push(b)
                 }
             })
@@ -222,7 +265,7 @@ database.edit_book = (book) => {
     return new Promise((resolve, reject) => {
         if (true) {
             Book.findOne({ book_id: book.book_id }).then((user) => {
-                for(var key in book){
+                for (var key in book) {
                     console.log(key.toLowerCase());
                     user[key.toLowerCase()] = book[key];
                 }
@@ -247,7 +290,7 @@ database.remove_book = (book) => {
             Book.findOne({ book_id: book }).then((user) => {
                 console.log(212, user);
                 user.status = 'deleted';
-                
+
                 Book(user).save(function (err) {
                     if (err) throw err;
                     resolve(user)
@@ -279,9 +322,9 @@ database.get_user_dashboard = (id) => {
         var state = {}
         Book.countDocuments({ availability: id }).then((count1) => {
             state.with_user = count1;
-            Request.countDocuments({ user_id: id, status:"Pending" }).then((count2) => {
+            Request.countDocuments({ user_id: id, status: "pending" }).then((count2) => {
                 state.pending_requests = count2;
-                Request.countDocuments({ user_id: id, status:"Accepted" }).then((count3) => {
+                Request.countDocuments({ user_id: id, status: "accepted" }).then((count3) => {
                     state.accepted = count3;
                     resolve(state)
                 });
