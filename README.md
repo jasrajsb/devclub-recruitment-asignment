@@ -9,12 +9,8 @@ Clone the Repository.
 
 run command `npm i` in ./Part 1
 
-create a `.env' file in Part 1 with following variables
+create a `.env' file in Part 1 with variables which I submitted in Form
 
-
-`MLAB_URI = MONGO DB URI`
-
-`JWT_AUTH_KEY=Something Random`
 
 Run command `npm start `
 
